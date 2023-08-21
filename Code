@@ -1,0 +1,52 @@
+import numpy as np 
+import pandas as pd 
+import seaborn as sns
+import matplotlib.pyplot as plt
+df = pd.read_csv('/content/Engineering_graduate_salary.csv')
+df.head()
+df.columns
+df = df.drop(['ID', 'DOB', 'CollegeID', '12graduation' ,'GraduationYear','10board', '12board' , 'CollegeState','CollegeCityID', 'CollegeCityTier',],axis = 1)
+df.head()
+df.duplicated().sum()
+df.Specialization.value_counts()
+specialization = df.Specialization.value_counts() 
+lessthan10 = specialization[specialization<=10]
+lessthan10
+def correctSpecialization(val):
+    if val in lessthan10:
+        return 'Others'
+    else:
+        return val
+df['Specialization'] = df['Specialization'].apply(correctSpecialization)
+df['Specialization'].value_counts()
+df.describe()
+plt.scatter(df.index,df['collegeGPA'])
+df = df[(df['collegeGPA'] > 40)]
+plt.figure(figsize = (15,15))
+plt.subplot(3,3,1)
+plt.scatter(df.index, df.ElectronicsAndSemicon)
+plt.title('ElectronicsAndSemicon')
+plt.subplot(3,3,2)
+plt.scatter(df.index, df.Domain)
+plt.title('Domain')
+plt.subplot(3,3,3)
+plt.scatter(df.index, df.ComputerProgramming)
+plt.title('ComputerProgramming')
+plt.show()
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+df.Gender = le.fit_transform(df.Gender)
+df.Degree = le.fit_transform(df.Degree)
+df.Specialization = le.fit_transform(df.Specialization)
+df = df.replace(-1,np.nan)
+cols_with_nan = [col for col in df.columns if df.isna().sum()[col]>0]
+for col in cols_with_nan:
+    df[col] = df[col].fillna(df[col].mean())
+sns.countplot(df.Gender,palette = 'inferno')
+sns.scatterplot(df['10percentage'],df['12percentage'])
+plt.figure(figsize = (10,5))
+sns.scatterplot(df.collegeGPA,df.Salary, hue = df.Degree,palette = 'inferno')
+plt.figure(figsize = (10,5))
+sns.scatterplot(df.openess_to_experience,df.Salary)
+df.info()
+df.head()
